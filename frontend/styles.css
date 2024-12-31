@@ -1,0 +1,141 @@
+body {
+    display: flex;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 20%;
+    background-color: #f9f9f9;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #ccc;
+}
+
+.sidebar h2 {
+    margin-top: 0;
+}
+
+.room {
+    margin-bottom: 20px;
+}
+
+.room button {
+    margin-left: 10px;
+    color: red;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: 1fr 100px 1fr;
+    gap: 10px;
+    padding: 10px;
+    background-color: #eaeaea;
+}
+
+.grid-cell {
+    background-color: #dcdcdc;
+    position: relative;
+    border: 1px solid #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-cell span {
+    font-size: 14px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+
+.add-room {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #999;
+    color: white;
+    cursor: pointer;
+}
+
+.door-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #8B4513;
+    margin: 2px;
+    position: relative;
+    display: inline-block;
+}
+
+.window-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #4169E1;
+    margin: 2px;
+    display: inline-block;
+}
+
+.alarm-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #808080;
+    margin: 2px;
+    display: inline-block;
+}
+
+.light-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #FFD700;
+    margin: 2px;
+    display: inline-block;
+}
+
+/* Modification du conteneur d'icônes pour accueillir tous les types */
+.icons-container {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.icon-row {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.corridor {
+    grid-column: 1 / span 6;
+    background-color: #c0c0c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    color: #666;
+}
+
+.empty-cell {
+    background-color: #dcdcdc;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.empty-cell:hover {
+    opacity: 1;
+    background-color: #999;
+    color: white;
+}
