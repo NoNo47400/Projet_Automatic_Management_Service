@@ -139,3 +139,76 @@ body {
     background-color: #999;
     color: white;
 }
+
+.placement-mode {
+    cursor: crosshair !important;
+    background-color: #e8e8e8 !important;
+}
+
+.placement-mode:hover {
+    background-color: #d0d0d0 !important;
+}
+
+/* Modifier les styles des icônes pour qu'elles soient positionnables */
+.light-icon, .alarm-icon, .window-icon, .door-icon {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: black;
+    font-weight: bold;
+}
+
+/* Supprimer les styles de conteneur d'icônes qui ne sont plus nécessaires */
+.icons-container, .icon-row {
+    display: none;
+}
+
+/* Styles pour les états des éléments */
+.light-icon.off {
+    background-color: #665c00;
+}
+
+.door-icon.closed {
+    background-color: #5c2e0d;
+}
+
+.window-icon.closed {
+    background-color: #1a4178;
+}
+
+.alarm-icon.off {
+    background-color: #404040;
+}
+
+/* Style pour le bouton toggle */
+.toggle-btn {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: -8px;
+    right: -8px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.light-icon:hover .toggle-btn,
+.door-icon:hover .toggle-btn,
+.window-icon:hover .toggle-btn,
+.alarm-icon:hover .toggle-btn {
+    opacity: 1;
+}
