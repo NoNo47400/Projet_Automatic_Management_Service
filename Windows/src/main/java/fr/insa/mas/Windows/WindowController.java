@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/doors")
+@RequestMapping("/windows")
 public class WindowController {
 
     @Autowired

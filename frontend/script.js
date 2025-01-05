@@ -1,6 +1,140 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Structure de données pour stocker l'état des salles
     let rooms = new Map();
+
+    // Ajouter au début du fichier
+    const WINDOWS_API_URL = 'http://localhost:8086/windows';
+    const DOORS_API_URL = 'http://localhost:8082/doors';
+    const LIGHTS_API_URL = 'http://localhost:8084/lights';
+    const ALARMS_API_URL = 'http://localhost:8083/alarms';
+    const ROOM_API_URL = 'http://localhost:8081/rooms';
+    const RESET_API_URL = 'http://localhost:5000/reset';
+
+    async function createWindowInDB(windowData) {
+        try {
+            const response = await fetch(WINDOWS_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(windowData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating window:', error);
+        }
+    }
+
+    async function deleteWindowFromDB(id) {
+        try {
+            await fetch(`${WINDOWS_API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Error deleting window:', error);
+        }
+    }
+
+    async function updateWindowState(id, closed) {
+        try {
+            const response = await fetch(`${WINDOWS_API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ closed: closed })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating window:', error);
+        }
+    }
+
+    // Ajouter les fonctions pour l'API Room
+    async function createRoomInDB(roomData) {
+        try {
+            const response = await fetch(ROOM_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(roomData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating room:', error);
+        }
+    }
+
+    async function deleteRoomFromDB(id) {
+        try {
+            await fetch(`${ROOM_API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Error deleting room:', error);
+        }
+    }
+
+    // Ajouter les fonctions pour les nouveaux services
+    async function createDoorInDB(doorData) {
+        try {
+            const response = await fetch(DOORS_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(doorData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating door:', error);
+        }
+    }
+
+    async function createLightInDB(lightData) {
+        try {
+            const response = await fetch(LIGHTS_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(lightData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating light:', error);
+        }
+    }
+
+    async function createAlarmInDB(alarmData) {
+        try {
+            const response = await fetch(ALARMS_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(alarmData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating alarm:', error);
+        }
+    }
+
+    // Fonction pour réinitialiser la base de données
+    async function resetDatabase() {
+        try {
+            const response = await fetch(RESET_API_URL, {
+                method: 'POST',
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                console.log('Database reset successfully');
+            } else {
+                console.error('Error resetting database:', result.message);
+            }
+        } catch (error) {
+            console.error('Error calling reset API:', error);
+        }
+    }
+
+    // Réinitialiser la base de données au chargement de la page
+    await resetDatabase();
 
     // Classe pour représenter une salle
     class Room {
@@ -23,6 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Supprimer une salle
     function deleteRoom(position) {
+        const room = rooms.get(parseInt(position));
+        if (room && room.dbId) {
+            deleteRoomFromDB(room.dbId);
+        }
         rooms.delete(parseInt(position));
         updateSidebar();
         updateGrid();
@@ -46,6 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function deleteElement(position, elementType, elementIndex) {
         const room = rooms.get(parseInt(position));
         if (room) {
+            const element = room[elementType][elementIndex];
+            if (elementType === 'windows' && element.dbId) {
+                deleteWindowFromDB(element.dbId);
+            }
             room[elementType].splice(elementIndex, 1);
             // Ne pas renuméroter, garder les positions existantes
             updateSidebar();
@@ -133,19 +275,57 @@ document.addEventListener('DOMContentLoaded', () => {
         room.counters[placementMode.elementType]++;
         const elementNumber = room.counters[placementMode.elementType];
         
-        // Modifier l'état initial selon le type d'élément
         const initialState = (placementMode.elementType === 'lights' || placementMode.elementType === 'alarms') ? 'off' : 'closed';
         
-        room[placementMode.elementType].push({
+        const element = {
             number: elementNumber,
             x: (x / rect.width) * 100,
             y: (y / rect.height) * 100,
-            state: initialState // État initial modifié
-        });
+            state: initialState
+        };
 
-        placementMode.active = false;
-        updateSidebar();
-        updateGrid();
+        // Créer l'élément dans la DB selon son type
+        switch(placementMode.elementType) {
+            case 'windows':
+                createWindowInDB({
+                    windowName: `R${room.position + 1}_W${elementNumber}`,
+                    roomId: room.position + 1,
+                    closed: true
+                }).then(handleDBResponse);
+                break;
+            case 'doors':
+                createDoorInDB({
+                    doorName: `R${room.position + 1}_D${elementNumber}`,
+                    roomId: room.position + 1,
+                    closed: true
+                }).then(handleDBResponse);
+                break;
+            case 'lights':
+                createLightInDB({
+                    lightName: `R${room.position + 1}_L${elementNumber}`,
+                    roomId: room.position + 1,
+                    active: false
+                }).then(handleDBResponse);
+                break;
+            case 'alarms':
+                createAlarmInDB({
+                    alarmName: `R${room.position + 1}_A${elementNumber}`,
+                    roomId: room.position + 1,
+                    active: false
+                }).then(handleDBResponse);
+                break;
+        }
+
+        function handleDBResponse(data) {
+            if (data) {
+                element.dbId = data.id;
+                element.fullName = data[placementMode.elementType.slice(0, -1) + 'Name'];
+                room[placementMode.elementType].push(element);
+            }
+            placementMode.active = false;
+            updateSidebar();
+            updateGrid();
+        }
     }
 
     function toggleElementState(position, elementType, index) {
@@ -159,7 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
                 case 'doors':
                 case 'windows':
-                    element.state = element.state === 'open' ? 'closed' : 'open';
+                    const newState = element.state === 'open' ? 'closed' : 'open';
+                    element.state = newState;
+                    if (elementType === 'windows' && element.dbId) {
+                        updateWindowState(element.dbId, newState === 'closed');
+                    }
                     break;
             }
             updateGrid();
@@ -237,9 +421,14 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.textContent = 'Add Room';
             cell.onclick = () => {
                 const room = new Room(position);
-                rooms.set(position, room);
-                updateSidebar();
-                updateGrid();
+                createRoomInDB({
+                    roomName: room.name
+                }).then(roomData => {
+                    room.dbId = roomData.id;
+                    rooms.set(position, room);
+                    updateSidebar();
+                    updateGrid();
+                });
             };
             return cell;
         }

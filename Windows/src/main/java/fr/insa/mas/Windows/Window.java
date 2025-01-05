@@ -53,10 +53,6 @@ public class Window {
         return closed;
     }
 
-    public void setClosed(boolean closed) {
-        this.closed = closed;
-    }
-
     public void updateClosed(boolean closed) {
         this.closed = closed;
     }

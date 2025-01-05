@@ -53,10 +53,6 @@ public class PresenceSensor {
         return active;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public void updateActive(boolean active) {
         this.active = active;
     }

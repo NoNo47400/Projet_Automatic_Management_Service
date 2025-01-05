@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS windows (
 -- Création de la table des heures de travail
 CREATE TABLE IF NOT EXISTS working_hour (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    room_id BIGINT NOT NULL,
+    room_id BIGINT NOT NULL,  -- A voir si je le met en lien avec une salle où pour tout le batiment
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-    current_time TIME NOT NULL,
+    current_time_value TIME NOT NULL
 );
