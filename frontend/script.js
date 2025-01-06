@@ -3,11 +3,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     let rooms = new Map();
 
     // Ajouter au début du fichier
-    const WINDOWS_API_URL = 'http://localhost:8086/windows';
-    const DOORS_API_URL = 'http://localhost:8082/doors';
-    const LIGHTS_API_URL = 'http://localhost:8084/lights';
-    const ALARMS_API_URL = 'http://localhost:8083/alarms';
+    
     const ROOM_API_URL = 'http://localhost:8081/rooms';
+    const DOORS_API_URL = 'http://localhost:8082/doors';
+    const ALARMS_API_URL = 'http://localhost:8083/alarms';
+    const LIGHTS_API_URL = 'http://localhost:8084/lights';
+    const SENSORS_API_URL = 'http://localhost:8085/sensors';
+    const WINDOWS_API_URL = 'http://localhost:8086/windows';
+    const USERS_API_URL = 'http://localhost:8088/users';
     const RESET_API_URL = 'http://localhost:5000/reset';
 
     async function createWindowInDB(windowData) {
@@ -90,6 +93,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    async function deleteDoorFromDB(id) {
+        try {
+            await fetch(`${DOORS_API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Error deleting door:', error);
+        }
+    }
+
+    async function updateDoorState(id, closed) {
+        try {
+            const response = await fetch(`${DOORS_API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ closed: closed })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating door:', error);
+        }
+    }
+
     async function createLightInDB(lightData) {
         try {
             const response = await fetch(LIGHTS_API_URL, {
@@ -103,6 +131,77 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    async function deleteLightFromDB(id) {
+        try {
+            await fetch(`${LIGHTS_API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Error deleting light:', error);
+        }
+    }
+
+    async function updateLightState(id, active) {
+        try {
+            const response = await fetch(`${LIGHTS_API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ active: active })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating light:', error);
+        }
+    }
+
+    async function createSensorInDB(sensorData) {
+        try {
+            const response = await fetch(SENSORS_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sensorData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating sensor:', error);
+        }
+    }
+
+    async function deleteSensorFromDB(id) {
+        try {
+            await fetch(`${SENSORS_API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Error deleting sensor:', error);
+        }
+    }
+
+    async function createUserInDB(userData) {
+        try {
+            const response = await fetch(USERS_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating user:', error);
+        }
+    }
+
+    async function deleteUserFromDB(id) {
+        try {
+            await fetch(`${USERS_API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    }
+
     async function createAlarmInDB(alarmData) {
         try {
             const response = await fetch(ALARMS_API_URL, {
@@ -113,6 +212,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             return await response.json();
         } catch (error) {
             console.error('Error creating alarm:', error);
+        }
+    }
+
+    async function deleteAlarmFromDB(id) {
+        try {
+            await fetch(`${ALARMS_API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+        } catch (error) {
+            console.error('Error deleting alarm:', error);
+        }
+    }
+
+    async function updateAlarmState(id, active) {
+        try {
+            const response = await fetch(`${ALARMS_API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ active: active })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating alarm:', error);
         }
     }
 
@@ -145,12 +269,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             this.alarms = [];
             this.windows = [];
             this.doors = [];
+            this.sensors = [];
+            this.users = [];
             // Compteurs pour chaque type d'élément
             this.counters = {
                 lights: 0,
                 alarms: 0,
                 windows: 0,
-                doors: 0
+                doors: 0,
+                users: 0,
+                sensors: 0
             };
         }
     }
@@ -185,8 +313,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         const room = rooms.get(parseInt(position));
         if (room) {
             const element = room[elementType][elementIndex];
-            if (elementType === 'windows' && element.dbId) {
-                deleteWindowFromDB(element.dbId);
+            switch(placementMode.elementType) {
+                case 'windows':
+                    deleteWindowFromDB(element.dbId);
+                    break;
+                case 'doors':
+                    deleteDoorFromDB(element.dbId);
+                    break;
+                case 'lights':
+                    deleteLightFromDB(element.dbId);
+                    break;
+                case 'sensors':
+                    deleteSensorFromDB(element.dbId);
+                    break;
+                case 'users':
+                    deleteUserFromDB(element.dbId);
+                    break;
+                case 'alarms':
+                    deleteAlarmFromDB(element.dbId);
+                    break;
             }
             room[elementType].splice(elementIndex, 1);
             // Ne pas renuméroter, garder les positions existantes
@@ -236,6 +381,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     `).join('')}
                     <li><button onclick="addElement(${room.position}, 'doors')">Add a door</button></li>
                 </ul>
+                <p><strong>Sensors</strong></p>
+                <ul>
+                    ${room.sensors.map((sensor, index) => `
+                        <li>Sensor ${sensor.number} <button onclick="deleteElement(${room.position}, 'sensors', ${index})">Delete</button></li>
+                    `).join('')}
+                    <li><button onclick="addElement(${room.position}, 'sensors')">Add a sensor</button></li>
+                </ul>
+                <p><strong>Users</strong></p>
+                <ul>
+                    ${room.users.map((user, index) => `
+                        <li>User ${user.number} <button onclick="deleteElement(${room.position}, 'users', ${index})">Delete</button></li>
+                    `).join('')}
+                    <li><button onclick="addElement(${room.position}, 'users')">Add a user</button></li>
+                </ul>
             `;
             sidebar.appendChild(roomDiv);
         });
@@ -275,8 +434,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         room.counters[placementMode.elementType]++;
         const elementNumber = room.counters[placementMode.elementType];
         
-        const initialState = (placementMode.elementType === 'lights' || placementMode.elementType === 'alarms') ? 'off' : 'closed';
-        
+        const initialState = (placementMode.elementType === 'lights' || placementMode.elementType === 'alarms' || placementMode.elementType === "sensors") ? false : true; // Les portes et fenêtres sont initialement fermées tandis que les autres sont inactifs
+
         const element = {
             number: elementNumber,
             x: (x / rect.width) * 100,
@@ -307,6 +466,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                     active: false
                 }).then(handleDBResponse);
                 break;
+            case 'sensors':
+                createSensorInDB({
+                    sensorName: `R${room.position + 1}_S${elementNumber}`,
+                    roomId: room.position + 1,
+                    active: false
+                }).then(handleDBResponse);
+                break;
+            case 'users':
+                createUserInDB({
+                    userName: `R${room.position + 1}_U${elementNumber}`,
+                    roomId: room.position + 1,
+                }).then(handleDBResponse);
+                break;
             case 'alarms':
                 createAlarmInDB({
                     alarmName: `R${room.position + 1}_A${elementNumber}`,
@@ -334,15 +506,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             const element = room[elementType][index];
             switch(elementType) {
                 case 'lights':
+                    element.state = element.state === true ? false : true;
+                    if (element.dbId) {
+                        updateLightState(element.dbId, element.state);
+                    }
+                    break;
                 case 'alarms':
-                    element.state = element.state === 'on' ? 'off' : 'on';
+                    element.state = element.state === true ? false : true;
+                    if (element.dbId) {
+                        updateAlarmState(element.dbId, element.state);
+                    }
                     break;
                 case 'doors':
+                    element.state = element.state === true ? false : true;
+                    if (element.dbId) {
+                        updateDoorState(element.dbId, element.state);
+                    }
+                    break;
                 case 'windows':
-                    const newState = element.state === 'open' ? 'closed' : 'open';
-                    element.state = newState;
-                    if (elementType === 'windows' && element.dbId) {
-                        updateWindowState(element.dbId, newState === 'closed');
+                    element.state = element.state === true ? false : true;
+                    if (element.dbId) {
+                        updateWindowState(element.dbId, element.state);
                     }
                     break;
             }
@@ -369,8 +553,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             content.appendChild(nameSpan);
             
             // Ajouter les icônes avec leurs positions spécifiques
-            const types = ['lights', 'alarms', 'windows', 'doors'];
-            const iconClasses = ['light-icon', 'alarm-icon', 'window-icon', 'door-icon'];
+            const types = ['lights', 'alarms', 'windows', 'doors', 'sensors', 'users'];
+            const iconClasses = ['light-icon', 'alarm-icon', 'window-icon', 'door-icon', 'sensor-icon', 'user-icon'];
             
             types.forEach((type, index) => {
                 existingRoom[type].forEach((element, elementIndex) => {
@@ -381,7 +565,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     container.style.transform = 'translate(-50%, -50%)';
 
                     const icon = document.createElement('div');
-                    icon.className = `${iconClasses[index]} ${element.state}`;
+                    // Modification ici pour la gestion des classes CSS
+                    const stateClass = getStateClass(type, element.state);
+                    icon.className = `${iconClasses[index]} ${stateClass}`;
                     icon.textContent = element.number;
 
                     const toggleBtn = document.createElement('div');
@@ -389,10 +575,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     // Définir les icônes spécifiques pour chaque type
                     const stateIcons = {
-                        'lights': element.state === 'on' ? '💡' : '⭕',
-                        'alarms': element.state === 'on' ? '🔔' : '🔕',
-                        'windows': element.state === 'open' ? '🪟' : '⬜',
-                        'doors': element.state === 'open' ? '🚪' : '🚫'
+                        'lights': element.state === true ? '💡' : '⭕',
+                        'alarms': element.state === true ? '🔔' : '🔕',
+                        'windows': element.state === false ? '🪟' : '⬜',
+                        'sensors': element.state === true ? '👤' : '🚫',
+                        'doors': element.state === false ? '🚪' : '🚫'
                     };
                     
                     toggleBtn.innerHTML = stateIcons[type];
@@ -434,6 +621,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // Ajouter cette nouvelle fonction helper
+    function getStateClass(type, state) {
+        switch(type) {
+            case 'lights':
+            case 'alarms':
+            case 'sensors':
+                return state ? 'on' : 'off';
+            case 'windows':
+            case 'doors':
+                return state ? 'closed' : 'open';
+            default:
+                return '';
+        }
+    }
+
     // Rendre les fonctions globales
     window.deleteRoom = deleteRoom;
     window.addElement = addElement;
@@ -442,5 +644,66 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialiser l'interface
     updateGrid();
+
+    // Fonction pour récupérer l'état d'un élément spécifique
+    async function fetchElementState(type, id) {
+        try {
+            const apiUrl = getApiUrlForType(type);
+            const response = await fetch(`${apiUrl}/${id}`);
+            return await response.json();
+        } catch (error) {
+            console.error(`Error fetching ${type} state:`, error);
+        }
+    }
+
+    // Fonction utilitaire pour obtenir l'URL API correspondante au type
+    function getApiUrlForType(type) {
+        const apiUrls = {
+            'lights': LIGHTS_API_URL,
+            'alarms': ALARMS_API_URL,
+            'windows': WINDOWS_API_URL,
+            'doors': DOORS_API_URL,
+            'sensors': SENSORS_API_URL
+        };
+        return apiUrls[type];
+    }
+
+    // Fonction pour mettre à jour l'état d'un élément dans l'interface
+    function updateElementStateInUI(room, type, elementIndex, newState) {
+        const element = room[type][elementIndex];
+        if (element) {
+            const oldState = element.state;
+            const stateKey = type === 'windows' || type === 'doors' ? 'closed' : 'active';
+            
+            if (oldState !== newState[stateKey]) {
+                element.state = newState[stateKey];
+                console.log(`${type} ${element.fullName} state changed from ${oldState} to ${element.state}`);
+                updateGrid();
+            }
+        }
+    }
+
+    // Fonction pour vérifier périodiquement l'état de tous les éléments
+    async function pollElementsState() {
+        rooms.forEach(room => {
+            const types = ['lights', 'alarms', 'windows', 'doors', 'sensors'];
+            
+            types.forEach(type => {
+                room[type].forEach((element, index) => {
+                    if (element.dbId) {
+                        fetchElementState(type, element.dbId)
+                            .then(newState => {
+                                if (newState) {
+                                    updateElementStateInUI(room, type, index, newState);
+                                }
+                            });
+                    }
+                });
+            });
+        });
+    }
+
+    // Démarrer le polling toutes les 2 secondes
+    setInterval(pollElementsState, 2000);
 });
 

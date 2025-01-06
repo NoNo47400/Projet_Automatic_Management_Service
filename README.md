@@ -2,17 +2,20 @@
 
 ## Structure du projet
 ```
-frontend/              # Interface utilisateur
-scripts/              # Scripts utilitaires
-├── reset_db.py       # Service de réinitialisation DB
-database/             # Scripts SQL
-├── init.sql         # Initialisation de la base de données
-services/            # Services Spring Boot
+frontend/           # Interface utilisateur
+scripts/            # Scripts utilitaires
+├── reset_db.py     # Service de réinitialisation DB
+database/           # Scripts SQL
+├── init.sql        # Initialisation de la base de données
+services/           # Services Spring Boot
 ├── Rooms/          # Gestion des salles (port 8081)
 ├── Doors/          # Gestion des portes (port 8082)
 ├── Alarms/         # Gestion des alarmes (port 8083)
 ├── Lights/         # Gestion des lumières (port 8084)
-└── Windows/        # Gestion des fenêtres (port 8086)
+├── Sensors/        # Gestion des capteurs de présence (port 8085)
+├── Windows/        # Gestion des fenêtres (port 8086)
+├── WorkingHours/   # Gestion du temps de travail (port 8087)
+└── Users/          # Gestion des utilisateurs dans les différentes pièces (port 8088)
 ```
 
 ## Prérequis
@@ -54,8 +57,20 @@ mvn spring-boot:run
 cd Lights
 mvn spring-boot:run    
 
+# Service PresenceSensors (port 8085)    
+cd PresenceSensors   
+mvn spring-boot:run     
+
 # Service Windows (port 8086)
 cd Windows
+mvn spring-boot:run   
+
+# Service WorkingHours (port 8087)
+cd WorkingHours
+mvn spring-boot:run   
+
+# Service Users (port 8088)
+cd Users
 mvn spring-boot:run   
 ```
 
@@ -74,7 +89,10 @@ Ou ouvrez-le avec votre navigateur préféré.
 - Service Doors : 8082
 - Service Alarms : 8083
 - Service Lights : 8084
+- Service PresenceSensors : 8085   
 - Service Windows : 8086
+- Service WorkingHours : 8087   
+- Service Users : 8088
 
 ## Utilisation
 1. Assurez-vous que tous les services sont en cours d'exécution

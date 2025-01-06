@@ -102,6 +102,24 @@ body {
     display: inline-block;
 }
 
+.user-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #FF69B4;  /* Rose pour représenter les utilisateurs */
+    margin: 2px;
+    display: inline-block;
+}
+
+.sensor-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #32CD32;  /* Vert pour représenter les capteurs */
+    margin: 2px;
+    display: inline-block;
+}
+
 /* Modification du conteneur d'icônes pour accueillir tous les types */
 .icons-container {
     position: absolute;
@@ -150,7 +168,7 @@ body {
 }
 
 /* Modifier les styles des icônes pour qu'elles soient positionnables */
-.light-icon, .alarm-icon, .window-icon, .door-icon {
+.light-icon, .alarm-icon, .window-icon, .door-icon, .user-icon, .sensor-icon {
     position: absolute;
     width: 24px;
     height: 24px;
@@ -173,6 +191,10 @@ body {
 /* Styles pour les états des éléments */
 .light-icon.off {
     background-color: #665c00;
+}
+
+.sensor-icon.off {
+    background-color: #228B22;
 }
 
 .door-icon.closed {
@@ -209,6 +231,7 @@ body {
 .light-icon:hover .toggle-btn,
 .door-icon:hover .toggle-btn,
 .window-icon:hover .toggle-btn,
-.alarm-icon:hover .toggle-btn {
+.alarm-icon:hover .toggle-btn,
+.sensor-icon:hover .toggle-btn{
     opacity: 1;
 }
