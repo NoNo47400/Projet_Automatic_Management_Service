@@ -1,10 +1,10 @@
-package fr.insa.mas.WorkingHour;
+package fr.insa.mas.Users;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class WorkingHourApplicationTests {
+class UsersApplicationTests {
 
 	@Test
 	void contextLoads() {

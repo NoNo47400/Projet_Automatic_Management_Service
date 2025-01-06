@@ -12,7 +12,7 @@
 	<artifactId>WorkingHours</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>WorkingHours</name>
-	<description>Pour ajouter de nouveaux users</description>
+	<description>Service de gestion des horaires de travail</description>
 	<url/>
 	<licenses>
 		<license/>

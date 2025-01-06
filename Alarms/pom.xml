@@ -12,7 +12,7 @@
 	<artifactId>Alarms</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Alarms</name>
-	<description>Pour ajouter de nouveaux users</description>
+	<description>Service de gestion des alarmes</description>
 	<url/>
 	<licenses>
 		<license/>

@@ -1,4 +1,4 @@
-package fr.insa.mas.Doors;
+package fr.insa.mas.WorkingHours;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -6,23 +6,30 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Table;
+import java.time.LocalTime;
 
 @Entity
-@Table(name = "doors")
-public class Door {
+@Table(name = "working_hours")
+public class WorkingHour {
     // Attributes
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "door_name", nullable = false)
-    private String doorName;
+    @Column(name = "working_hour_name", nullable = false)
+    private String working_hourName;
 
     @Column(name = "room_id", nullable = false)
     private Long roomId;
+    
+    @Column(name = "start_time", nullable = false)
+    private LocalTime start_time;
 
-    @Column(name = "closed", nullable = false)
-    private boolean closed;
+    @Column(name = "end_time", nullable = false)
+    private LocalTime end_time;
+
+    @Column(name = "current_time_value", nullable = false)
+    private LocalTime current_time_value;
 
     // Getters and setters
     public Long getId() {
@@ -33,12 +40,12 @@ public class Door {
         this.id = id;
     }
 
-    public String getDoorName() {
-        return doorName;
+    public String getWorkingHourName() {
+        return working_hourName;
     }
 
-    public void setDoorName(String doorName) {
-        this.doorName = doorName;
+    public void setWorkingHourName(String working_hourName) {
+        this.working_hourName = working_hourName;
     }
 
     public Long getRoomId() {
@@ -49,15 +56,28 @@ public class Door {
         this.roomId = roomId;
     }
 
-    public boolean getClosed() {
-        return closed;
+    public LocalTime getStartTime() {
+        return start_time;
     }
 
-    public void setClosed(boolean closed) {
-        this.closed = closed;
+    public void updateStartTime(LocalTime start_time) {
+        this.start_time = start_time;
     }
 
-    public void updateClosed(boolean closed) {
-        this.closed = closed;
+    public LocalTime getEndTime() {
+        return end_time;
     }
+
+    public void updateEndTime(LocalTime end_time) {
+        this.end_time = end_time;
+    }
+
+    public LocalTime getCurrentTime() {
+        return current_time_value;
+    }
+
+    public void updateCurrentTime(LocalTime current_time_value) {
+        this.current_time_value = current_time_value;
+    }
+
 }

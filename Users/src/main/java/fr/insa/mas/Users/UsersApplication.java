@@ -1,4 +1,4 @@
-package fr.insa.mas.WorkingHours;
+package fr.insa.mas.Users;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,12 +8,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@SpringBootApplication(scanBasePackages = "fr.insa.mas.WorkingHours")
-@EnableJpaRepositories(basePackages = "fr.insa.mas.WorkingHours")
-public class WorkingHoursApplication {
+@SpringBootApplication(scanBasePackages = "fr.insa.mas.Users")
+@EnableJpaRepositories(basePackages = "fr.insa.mas.Users")
+public class UsersApplication {
 
 	public static void main(String[] args) {
-        SpringApplication.run(WorkingHoursApplication.class, args);
+        SpringApplication.run(UsersApplication.class, args);
     }
 
     @Bean

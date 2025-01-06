@@ -13,29 +13,43 @@ public class WorkingHourController {
     private WorkingHoursRepository workingHoursRepository;
 
     @GetMapping
-    public List<Door> getAllDoors() {
+    public List<WorkingHour> getAllWorkingHours() {
         return workingHoursRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public Door getDoor(@PathVariable Long id) {
+    public WorkingHour getWorkingHour(@PathVariable Long id) {
         return workingHoursRepository.findById(id).orElseThrow();
     }
 
     @PostMapping
-    public Door createDoor(@RequestBody Door request) {
+    public WorkingHour createWorkingHour(@RequestBody WorkingHour request) {
         return workingHoursRepository.save(request);
     }
 
-    @PutMapping("/{id}")
-    public Door updateClosed(@RequestBody Door updatedDoor, @PathVariable Long id) {
-        Door request = workingHoursRepository.findById(id).orElseThrow();
-        request.updateClosed(updatedDoor.getClosed());
+    @PutMapping("/{id}/start_time")
+    public WorkingHour updateStartTime(@RequestBody WorkingHour updatedWorkingHour, @PathVariable Long id) {
+        WorkingHour request = workingHoursRepository.findById(id).orElseThrow();
+        request.updateStartTime(updatedWorkingHour.getStartTime());
+        return workingHoursRepository.save(request);
+    }
+
+    @PutMapping("/{id}/end_time")
+    public WorkingHour updateEndTime(@RequestBody WorkingHour updatedWorkingHour, @PathVariable Long id) {
+        WorkingHour request = workingHoursRepository.findById(id).orElseThrow();
+        request.updateEndTime(updatedWorkingHour.getEndTime());
+        return workingHoursRepository.save(request);
+    }
+
+    @PutMapping("/{id}/current_time")
+    public WorkingHour updateCurrentTime(@RequestBody WorkingHour updatedWorkingHour, @PathVariable Long id) {
+        WorkingHour request = workingHoursRepository.findById(id).orElseThrow();
+        request.updateCurrentTime(updatedWorkingHour.getCurrentTime());
         return workingHoursRepository.save(request);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteDoor(@PathVariable Long id) {
+    public String deleteWorkingHour(@PathVariable Long id) {
         workingHoursRepository.deleteById(id);
         return "Success";
     }

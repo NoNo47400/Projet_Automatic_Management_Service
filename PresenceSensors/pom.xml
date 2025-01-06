@@ -12,7 +12,7 @@
 	<artifactId>PresenceSensors</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>PresenceSensors</name>
-	<description>Pour ajouter de nouveaux users</description>
+	<description>Service de gestion des capteurs de présence</description>
 	<url/>
 	<licenses>
 		<license/>
