@@ -8,8 +8,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@SpringBootApplication(scanBasePackages = "fr.insa.mas.Sensors")
-@EnableJpaRepositories(basePackages = "fr.insa.mas.Sensors")
+@SpringBootApplication(scanBasePackages = "fr.insa.mas.PresenceSensors")
+@EnableJpaRepositories(basePackages = "fr.insa.mas.PresenceSensors")
 public class PresenceSensorsApplication {
 
 	public static void main(String[] args) {
