@@ -49,7 +49,7 @@ public class WorkingHour {
         return startTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
+    public void updateStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
 
@@ -57,7 +57,7 @@ public class WorkingHour {
         return endTime;
     }
 
-    public void setEndTime(LocalTime endTime) {
+    public void updateEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
 
@@ -65,7 +65,7 @@ public class WorkingHour {
         return currentTime;
     }
 
-    public void setCurrentTime(LocalTime currentTime) {
+    public void updateCurrentTime(LocalTime currentTime) {
         this.currentTime = currentTime;
     }
 

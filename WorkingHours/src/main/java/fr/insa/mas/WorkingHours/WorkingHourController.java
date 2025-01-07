@@ -27,25 +27,19 @@ public class WorkingHourController {
         return workingHoursRepository.save(request);
     }
 
-    @PutMapping("/{id}/start_time")
-    public WorkingHour updateStartTime(@RequestBody WorkingHour updatedWorkingHour, @PathVariable Long id) {
-        WorkingHour request = workingHoursRepository.findById(id).orElseThrow();
-        request.updateStartTime(updatedWorkingHour.getStartTime());
-        return workingHoursRepository.save(request);
-    }
-
-    @PutMapping("/{id}/end_time")
-    public WorkingHour updateEndTime(@RequestBody WorkingHour updatedWorkingHour, @PathVariable Long id) {
-        WorkingHour request = workingHoursRepository.findById(id).orElseThrow();
-        request.updateEndTime(updatedWorkingHour.getEndTime());
-        return workingHoursRepository.save(request);
-    }
-
     @PutMapping("/{id}/current_time")
     public WorkingHour updateCurrentTime(@RequestBody WorkingHour updatedWorkingHour, @PathVariable Long id) {
         WorkingHour request = workingHoursRepository.findById(id).orElseThrow();
         request.updateCurrentTime(updatedWorkingHour.getCurrentTime());
         return workingHoursRepository.save(request);
+    }
+
+    @PutMapping("/{id}")
+    public WorkingHour updateWorkingHours(@RequestBody WorkingHour updatedWorkingHour, @PathVariable Long id) {
+        WorkingHour workingHour = workingHoursRepository.findById(id).orElseThrow();
+        workingHour.updateStartTime(updatedWorkingHour.getStartTime());
+        workingHour.updateEndTime(updatedWorkingHour.getEndTime());
+        return workingHoursRepository.save(workingHour);
     }
 
     @DeleteMapping("/{id}")

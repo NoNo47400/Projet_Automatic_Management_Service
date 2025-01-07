@@ -2,20 +2,108 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Structure de données pour stocker l'état des salles
     let rooms = new Map();
 
-    // Ajouter au début du fichier
-    
-    const ROOM_API_URL = 'http://localhost:8081/rooms';
-    const DOORS_API_URL = 'http://localhost:8082/doors';
-    const ALARMS_API_URL = 'http://localhost:8083/alarms';
-    const LIGHTS_API_URL = 'http://localhost:8084/lights';
-    const SENSORS_API_URL = 'http://localhost:8085/sensors';
-    const WINDOWS_API_URL = 'http://localhost:8086/windows';
-    const USERS_API_URL = 'http://localhost:8088/users';
-    const RESET_API_URL = 'http://localhost:5000/reset';
+    // Constantes globales pour les URLs d'API
+    const API_URLS = {
+        ROOM: 'http://localhost:8081/rooms',
+        DOOR: 'http://localhost:8082/doors',
+        ALARM: 'http://localhost:8083/alarms',
+        LIGHT: 'http://localhost:8084/lights',
+        SENSOR: 'http://localhost:8085/sensors',
+        WINDOW: 'http://localhost:8086/windows',
+        HOUR: 'http://localhost:8087/working_hours',
+        USER: 'http://localhost:8088/users',
+        RESET: 'http://localhost:5000/reset'
+    };
+
+    // Configuration des éléments par type
+    const ELEMENT_CONFIG = {
+        lights: {
+            initialState: false,
+            icon: (state) => state ? '💡' : '⭕',
+            className: 'light-icon',
+            stateKey: 'active'
+        },
+        alarms: {
+            initialState: false,
+            icon: (state) => state ? '🔔' : '🔕',
+            className: 'alarm-icon',
+            stateKey: 'active'
+        },
+        windows: {
+            initialState: true,
+            icon: (state) => !state ? '🪟' : '⬜',
+            className: 'window-icon',
+            stateKey: 'closed'
+        },
+        doors: {
+            initialState: true,
+            icon: (state) => !state ? '🚪' : '🚫',
+            className: 'door-icon',
+            stateKey: 'closed'
+        },
+        sensors: {
+            initialState: false,
+            icon: (state) => state ? '👤' : '🚫',
+            className: 'sensor-icon',
+            stateKey: 'active'
+        },
+        users: {
+            initialState: null,
+            className: 'user-icon'
+        }
+    };
+
+    // Gérer la configuration initiale des horaires de travail
+    const setupOverlay = document.getElementById('setupOverlay');
+    const workingHoursForm = document.getElementById('workingHoursForm');
+
+    // Validation des horaires
+    function validateTimes(startTime, endTime) {
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        return end > start;
+    }
+
+    workingHoursForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+        
+        if (!validateTimes(startTime, endTime)) {
+            alert('End time must be after start time');
+            return;
+        }
+        
+        try {
+            const response = await fetch(API_URLS.HOUR, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    workingHourName: "Default Schedule",
+                    startTime: startTime,
+                    endTime: endTime,
+                    currentTime: "00:00:00" // Minuit
+                })
+            });
+
+            if (response.ok) {
+                setupOverlay.style.display = 'none';
+                // Continue with the rest of the application
+            } else {
+                alert('Error setting up working hours. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error setting up working hours. Please try again.');
+        }
+    });
 
     async function createWindowInDB(windowData) {
         try {
-            const response = await fetch(WINDOWS_API_URL, {
+            const response = await fetch(API_URLS.WINDOW, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -30,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function deleteWindowFromDB(id) {
         try {
-            await fetch(`${WINDOWS_API_URL}/${id}`, {
+            await fetch(`${API_URLS.WINDOW}/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -40,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function updateWindowState(id, closed) {
         try {
-            const response = await fetch(`${WINDOWS_API_URL}/${id}`, {
+            const response = await fetch(`${API_URLS.WINDOW}/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -56,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ajouter les fonctions pour l'API Room
     async function createRoomInDB(roomData) {
         try {
-            const response = await fetch(ROOM_API_URL, {
+            const response = await fetch(API_URLS.ROOM, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function deleteRoomFromDB(id) {
         try {
-            await fetch(`${ROOM_API_URL}/${id}`, {
+            await fetch(`${API_URLS.ROOM}/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -82,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ajouter les fonctions pour les nouveaux services
     async function createDoorInDB(doorData) {
         try {
-            const response = await fetch(DOORS_API_URL, {
+            const response = await fetch(API_URLS.DOOR, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(doorData)
@@ -95,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function deleteDoorFromDB(id) {
         try {
-            await fetch(`${DOORS_API_URL}/${id}`, {
+            await fetch(`${API_URLS.DOOR}/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -105,7 +193,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function updateDoorState(id, closed) {
         try {
-            const response = await fetch(`${DOORS_API_URL}/${id}`, {
+            const response = await fetch(`${API_URLS.DOOR}/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -120,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function createLightInDB(lightData) {
         try {
-            const response = await fetch(LIGHTS_API_URL, {
+            const response = await fetch(API_URLS.LIGHT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(lightData)
@@ -133,7 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function deleteLightFromDB(id) {
         try {
-            await fetch(`${LIGHTS_API_URL}/${id}`, {
+            await fetch(`${API_URLS.LIGHT}/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -143,7 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function updateLightState(id, active) {
         try {
-            const response = await fetch(`${LIGHTS_API_URL}/${id}`, {
+            const response = await fetch(`${API_URLS.LIGHT}/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -158,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function createSensorInDB(sensorData) {
         try {
-            const response = await fetch(SENSORS_API_URL, {
+            const response = await fetch(API_URLS.SENSOR, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(sensorData)
@@ -171,7 +259,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function deleteSensorFromDB(id) {
         try {
-            await fetch(`${SENSORS_API_URL}/${id}`, {
+            await fetch(`${API_URLS.SENSOR}/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -181,7 +269,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function createUserInDB(userData) {
         try {
-            const response = await fetch(USERS_API_URL, {
+            const response = await fetch(API_URLS.USER, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
@@ -194,7 +282,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function deleteUserFromDB(id) {
         try {
-            await fetch(`${USERS_API_URL}/${id}`, {
+            await fetch(`${API_URLS.USER}/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -204,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function createAlarmInDB(alarmData) {
         try {
-            const response = await fetch(ALARMS_API_URL, {
+            const response = await fetch(API_URLS.ALARM, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(alarmData)
@@ -217,7 +305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function deleteAlarmFromDB(id) {
         try {
-            await fetch(`${ALARMS_API_URL}/${id}`, {
+            await fetch(`${API_URLS.ALARM}/${id}`, {
                 method: 'DELETE'
             });
         } catch (error) {
@@ -227,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function updateAlarmState(id, active) {
         try {
-            const response = await fetch(`${ALARMS_API_URL}/${id}`, {
+            const response = await fetch(`${API_URLS.ALARM}/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -243,7 +331,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fonction pour réinitialiser la base de données
     async function resetDatabase() {
         try {
-            const response = await fetch(RESET_API_URL, {
+            const response = await fetch(API_URLS.RESET, {
                 method: 'POST',
             });
             const result = await response.json();
@@ -344,6 +432,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateSidebar() {
         const sidebar = document.querySelector('.sidebar');
         sidebar.innerHTML = '';
+        
+        // Créer la section des horaires
+        const newWorkingHoursSection = document.createElement('div');
+        newWorkingHoursSection.className = 'working-hours-section';
+        sidebar.appendChild(newWorkingHoursSection);
+        
+        // Mettre à jour l'affichage de l'heure
+        updateCurrentTimeDisplay();
 
         // Trier les salles par position pour affichage cohérent
         const sortedRooms = Array.from(rooms.values()).sort((a, b) => a.position - b.position);
@@ -434,7 +530,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         room.counters[placementMode.elementType]++;
         const elementNumber = room.counters[placementMode.elementType];
         
-        const initialState = (placementMode.elementType === 'lights' || placementMode.elementType === 'alarms' || placementMode.elementType === "sensors") ? false : true; // Les portes et fenêtres sont initialement fermées tandis que les autres sont inactifs
+        const initialState = ELEMENT_CONFIG[placementMode.elementType].initialState;
 
         const element = {
             number: elementNumber,
@@ -636,6 +732,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // Ajouter cette fonction pour mettre à jour l'affichage de l'heure
+    async function updateCurrentTimeDisplay() {
+        try {
+            const response = await fetch(API_URLS.HOUR);
+            const hours = await response.json();
+            if (hours && hours.length > 0) {
+                const workingHoursSection = document.querySelector('.working-hours-section');
+                const time = hours[0].currentTime.substring(0, 5);
+                
+                // Vérifier si l'heure actuelle est dans les horaires de travail
+                const currentTime = new Date(`2000-01-01T${hours[0].currentTime}`);
+                const startTime = new Date(`2000-01-01T${hours[0].startTime}`);
+                const endTime = new Date(`2000-01-01T${hours[0].endTime}`);
+                const isWorkingHours = currentTime >= startTime && currentTime <= endTime;
+
+                workingHoursSection.innerHTML = `
+                    <div class="time-display">
+                        <div class="digital-clock">${time}</div>
+                        <span class="time-icon">${isWorkingHours ? '☀️' : '🌕'}</span>
+                    </div>
+                    <button id="editWorkingHoursBtn">Edit Working Hours</button>
+                `;
+                
+                // Réattacher l'événement au bouton
+                document.getElementById('editWorkingHoursBtn').onclick = async () => {
+                    await getCurrentWorkingHours();
+                    modal.style.display = 'block';
+                };
+            }
+        } catch (error) {
+            console.error('Error updating current time display:', error);
+        }
+    }
+
     // Rendre les fonctions globales
     window.deleteRoom = deleteRoom;
     window.addElement = addElement;
@@ -659,11 +789,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fonction utilitaire pour obtenir l'URL API correspondante au type
     function getApiUrlForType(type) {
         const apiUrls = {
-            'lights': LIGHTS_API_URL,
-            'alarms': ALARMS_API_URL,
-            'windows': WINDOWS_API_URL,
-            'doors': DOORS_API_URL,
-            'sensors': SENSORS_API_URL
+            'lights': API_URLS.LIGHT,
+            'alarms': API_URLS.ALARM,
+            'windows': API_URLS.WINDOW,
+            'doors': API_URLS.DOOR,
+            'sensors': API_URLS.SENSOR
         };
         return apiUrls[type];
     }
@@ -685,6 +815,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fonction pour vérifier périodiquement l'état de tous les éléments
     async function pollElementsState() {
+        // Mettre à jour l'affichage de l'heure
+        await updateCurrentTimeDisplay();
+
+        // Le reste de la fonction reste inchangé
         rooms.forEach(room => {
             const types = ['lights', 'alarms', 'windows', 'doors', 'sensors'];
             
@@ -705,5 +839,100 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Démarrer le polling toutes les 2 secondes
     setInterval(pollElementsState, 2000);
+
+    // Variables pour le modal des horaires
+    const modal = document.getElementById('workingHoursModal');
+    const editBtn = document.getElementById('editWorkingHoursBtn');
+    const cancelBtn = document.getElementById('cancelEditHours');
+    const editForm = document.getElementById('editWorkingHoursForm');
+
+    // Variable pour stocker l'ID des horaires actuelles
+    let currentWorkingHoursId = null;
+
+    // Fonction pour récupérer les horaires actuelles
+    async function getCurrentWorkingHours() {
+        try {
+            const response = await fetch(API_URLS.HOUR);
+            const hours = await response.json();
+            if (hours && hours.length > 0) {
+                currentWorkingHoursId = hours[0].id;
+                document.getElementById('editStartTime').value = hours[0].startTime;
+                document.getElementById('editEndTime').value = hours[0].endTime;
+            }
+        } catch (error) {
+            console.error('Error fetching working hours:', error);
+        }
+    }
+
+    // Ouvrir le modal
+    editBtn.onclick = async () => {
+        await getCurrentWorkingHours();
+        modal.style.display = 'block';
+    };
+
+    // Fermer le modal
+    cancelBtn.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    // Fermer le modal si on clique en dehors
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    // Gérer la soumission du formulaire de modification
+    editForm.onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const startTime = document.getElementById('editStartTime').value;
+        const endTime = document.getElementById('editEndTime').value;
+
+        if (!validateTimes(startTime, endTime)) {
+            alert('End time must be after start time');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URLS.HOUR}/${currentWorkingHoursId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    startTime: startTime,
+                    endTime: endTime
+                })
+            });
+
+            if (response.ok) {
+                modal.style.display = 'none';
+                alert('Working hours updated successfully!');
+            } else {
+                alert('Error updating working hours. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error updating working hours. Please try again.');
+        }
+    };
+
+    // Ajouter la validation en temps réel pour une meilleure expérience utilisateur
+    document.getElementById('endTime').addEventListener('change', function() {
+        const startTime = document.getElementById('startTime').value;
+        if (startTime && !validateTimes(startTime, this.value)) {
+            alert('End time must be after start time');
+            this.value = '';
+        }
+    });
+
+    document.getElementById('editEndTime').addEventListener('change', function() {
+        const startTime = document.getElementById('editStartTime').value;
+        if (startTime && !validateTimes(startTime, this.value)) {
+            alert('End time must be after start time');
+            this.value = '';
+        }
+    });
 });
 

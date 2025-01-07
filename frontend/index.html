@@ -8,7 +8,26 @@
     <script src="script.js"></script>
 </head>
 <body>
+    <div id="setupOverlay" class="setup-overlay">
+        <div class="setup-form">
+            <h2>Configure Working Hours</h2>
+            <form id="workingHoursForm">
+                <div>
+                    <label for="startTime">Start Time:</label>
+                    <input type="time" id="startTime" required>
+                </div>
+                <div>
+                    <label for="endTime">End Time:</label>
+                    <input type="time" id="endTime" required>
+                </div>
+                <button type="submit">Start Application</button>
+            </form>
+        </div>
+    </div>
     <div class="sidebar">
+        <div class="working-hours-section">
+            <button id="editWorkingHoursBtn">Edit Working Hours</button>
+        </div>
         <div class="room">
         </div>
     </div>
@@ -19,6 +38,27 @@
         </div>
         <div class="grid-cell add-room">
             Add Room
+        </div>
+    </div>
+
+    <!-- Modal pour modifier les horaires -->
+    <div id="workingHoursModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Working Hours</h2>
+            <form id="editWorkingHoursForm">
+                <div>
+                    <label for="editStartTime">Start Time:</label>
+                    <input type="time" id="editStartTime" required>
+                </div>
+                <div>
+                    <label for="editEndTime">End Time:</label>
+                    <input type="time" id="editEndTime" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit">Save Changes</button>
+                    <button type="button" id="cancelEditHours">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
