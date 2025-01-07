@@ -18,9 +18,6 @@ public class WorkingHour {
     
     @Column(name = "working_hour_name", nullable = false)
     private String working_hourName;
-
-    @Column(name = "room_id", nullable = false)
-    private Long roomId;
     
     @Column(name = "start_time", nullable = false)
     private LocalTime start_time;
@@ -46,14 +43,6 @@ public class WorkingHour {
 
     public void setWorkingHourName(String working_hourName) {
         this.working_hourName = working_hourName;
-    }
-
-    public Long getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
     }
 
     public LocalTime getStartTime() {

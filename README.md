@@ -36,7 +36,7 @@ venv\Scripts\activate  # Windows
 source venv/bin/activate  # Linux/Mac
 
 # Installez les dépendances nécessaires pour démarrer le fichier python
-pip install mysql-connector-python flask flask-cors
+pip install mysql-connector-python flask flask-cors requests
 
 # Lancer le service
 python scripts/reset_db.py

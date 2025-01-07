@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS windows (
     FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
 );
 
--- Création de la table des fenêtres
+-- Création de la table des users
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_name VARCHAR(255) UNIQUE NOT NULL,
@@ -66,9 +66,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Création de la table des heures de travail
-CREATE TABLE IF NOT EXISTS working_hour (
+CREATE TABLE IF NOT EXISTS working_hours (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    room_id BIGINT NOT NULL,  -- A voir si je le met en lien avec une salle où pour tout le batiment
+    working_hour_name VARCHAR(255) UNIQUE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     current_time_value TIME NOT NULL
