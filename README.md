@@ -28,9 +28,15 @@ services/           # Services Spring Boot
 
 ### 1. Service Python (Reset DB)
 ```bash
+# Créer l'environnemment virtuel
+python -m venv venv
+
 # Activer l'environnement virtuel si ce n'est pas déjà fait
 venv\Scripts\activate  # Windows
 source venv/bin/activate  # Linux/Mac
+
+# Installez les dépendances nécessaires pour démarrer le fichier python
+pip install mysql-connector-python flask flask-cors
 
 # Lancer le service
 python scripts/reset_db.py
