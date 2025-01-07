@@ -17,18 +17,18 @@ public class WorkingHour {
     private Long id;
     
     @Column(name = "working_hour_name", nullable = false)
-    private String working_hourName;
+    private String workingHourName;  // Changed from working_hourName to match JSON
     
     @Column(name = "start_time", nullable = false)
-    private LocalTime start_time;
-
+    private LocalTime startTime;     // Changed from start_time to match JSON
+    
     @Column(name = "end_time", nullable = false)
-    private LocalTime end_time;
-
+    private LocalTime endTime;       // Changed from end_time to match JSON
+    
     @Column(name = "current_time_value", nullable = false)
-    private LocalTime current_time_value;
+    private LocalTime currentTime;   // Changed from current_time_value to match JSON
 
-    // Getters and setters
+    // Getters and setters with corrected names
     public Long getId() {
         return id;
     }
@@ -38,35 +38,35 @@ public class WorkingHour {
     }
 
     public String getWorkingHourName() {
-        return working_hourName;
+        return workingHourName;
     }
 
-    public void setWorkingHourName(String working_hourName) {
-        this.working_hourName = working_hourName;
+    public void setWorkingHourName(String workingHourName) {
+        this.workingHourName = workingHourName;
     }
 
     public LocalTime getStartTime() {
-        return start_time;
+        return startTime;
     }
 
-    public void updateStartTime(LocalTime start_time) {
-        this.start_time = start_time;
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
     }
 
     public LocalTime getEndTime() {
-        return end_time;
+        return endTime;
     }
 
-    public void updateEndTime(LocalTime end_time) {
-        this.end_time = end_time;
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 
     public LocalTime getCurrentTime() {
-        return current_time_value;
+        return currentTime;
     }
 
-    public void updateCurrentTime(LocalTime current_time_value) {
-        this.current_time_value = current_time_value;
+    public void setCurrentTime(LocalTime currentTime) {
+        this.currentTime = currentTime;
     }
 
 }
