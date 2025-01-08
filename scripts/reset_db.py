@@ -1,4 +1,4 @@
-import mysql.connector
+import mariadb
 import os
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -8,12 +8,12 @@ CORS(app)
 
 def reset_database():
     try:
-        # Connexion à MySQL
-        connection = mysql.connector.connect(
-            host="srv-bdens.insa-toulouse.fr",
-            user="projet_gei_037",
-            password="Oo3Loh1g",
-            database="projet_gei_037",
+        # Connexion à MariaDB local
+        connection = mariadb.connect(
+            host="localhost",
+            user="root",
+            password="root",
+            database="archi_service",
             port=3306
         )
         
@@ -38,7 +38,7 @@ def reset_database():
         return {"status": "error", "message": str(e)}
         
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if 'connection' in locals():
             cursor.close()
             connection.close()
 

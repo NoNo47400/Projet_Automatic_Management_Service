@@ -1,4 +1,2 @@
 # Environnement virtuel
 venv/
-# Fichier perso
-database/init_database.py

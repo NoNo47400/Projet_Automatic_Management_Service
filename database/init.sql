@@ -1,10 +1,9 @@
-SET FOREIGN_KEY_CHECKS = 1;
 -- Permet de supprimer la base de données si elle existe
-DROP DATABASE IF EXISTS projet_gei_037;
+DROP DATABASE IF EXISTS archi_service;
 
 -- Création de la base de données pour le service utilisateur
-CREATE DATABASE IF NOT EXISTS projet_gei_037;
-USE projet_gei_037;
+CREATE DATABASE IF NOT EXISTS archi_service;
+USE archi_service;
 
 -- Création de la table des salles
 CREATE TABLE IF NOT EXISTS rooms (
@@ -73,3 +72,5 @@ CREATE TABLE IF NOT EXISTS working_hours (
     end_time TIME NOT NULL,
     current_time_value TIME NOT NULL
 );
+
+SET FOREIGN_KEY_CHECKS = 1;
