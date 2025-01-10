@@ -3,7 +3,7 @@
 ## Installation de MariaDB
 
 ### Windows
-1. Télécharger MariaDB : https://mariadb.com/kb/en/postdownload/mariadb-server-11-4-4/
+1. Télécharger MariaDB : https://dlm.mariadb.com/3964460/MariaDB/mariadb-11.4.4/winx64-packages/mariadb-11.4.4-winx64.msi 
 2. Durant l'installation :
    - Mot de passe root : `root`
    - Service name : `MariaDB`

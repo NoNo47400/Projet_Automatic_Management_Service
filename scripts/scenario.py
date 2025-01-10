@@ -158,6 +158,7 @@ def put_window_closed(window_id, closed_value):
 def get_users():
     r = requests.get(USERS_API_URL)
     r.raise_for_status()
+    print(r.json())
     return r.json()
 
 # (Si vous avez un service pour WorkingHours)
@@ -170,14 +171,13 @@ def get_working_hour(wh_id):
     r.raise_for_status()
     return r.json()
 
-def put_working_hour_time(wh_id, field, new_time_str):
+def put_current_time(wh_id, new_time_str):
     """
-    Met à jour un champ temporel (start_time, end_time ou current_time) d'un WorkingHour.
+    Met à jour le champ temporel (current_time) d'un WorkingHour.
     """
-    url = f"{WORKING_API_URL}/{wh_id}/{field}"
+    url = f"{WORKING_API_URL}/{wh_id}/current_time"
     body = {
-        "id": wh_id,
-        field: new_time_str
+        "currentTime": new_time_str
     }
     r = requests.put(url, json=body)
     r.raise_for_status()
@@ -235,6 +235,7 @@ def apply_scenario_logic():
     # Récupérer l'état de présence par salle
     sensors_list = get_sensors()
     presence_in_room = {}
+    print(sensors_list)
     for s in sensors_list:
         rid = s["roomId"]
         if rid not in presence_in_room:
@@ -299,7 +300,7 @@ def increment_current_time():
     new_t_str  = time_to_string(new_t_obj)
 
     print(f"[INFO] CurrentTime increment => {wh['currentTime']} -> {new_t_str}")
-    put_working_hour_time(WORKING_HOUR_ID, "current_time", new_t_str)
+    put_current_time(WORKING_HOUR_ID, new_t_str)
 
 # -----------------------------------------------------------------------------
 # Boucle principale de simulation
@@ -313,6 +314,8 @@ def main():
 
     while True:
         try:
+            
+            print("=== ITERATION ===")
             # 1) Mettre à jour la présence (capteurs) en fonction des users
             update_presence_sensors()
 
