@@ -65,6 +65,7 @@ def is_within_working_hours(current_t, start_t, end_t):
 
     if start_s < end_s:
         # Intervalle "normal" (ex: 08:00 -> 18:00)
+        # => On est dans la plage si start <= current < end
         return start_s <= current_s < end_s
     else:
         # Intervalle "overnight" (ex: 20:00 -> 06:00 du lendemain)
@@ -215,54 +216,70 @@ def update_presence_sensors():
 
 def apply_scenario_logic():
     """
-    Applique la logique du scénario décrite :
-      - Si pendant les heures de travail :
-          * Portes & fenêtres ouvertes
+    Applique la logique du scénario :
+      - Pendant les heures de travail (startTime <= currentTime < endTime) :
           * Lumières allumées si présence
           * Alarmes désactivées
-      - Si hors heures de travail :
-          * Portes & fenêtres fermées
+          * (Optionnel) Portes/fenêtres ouvertes durant la plage
+          * Au moment précis de endTime : portes/fenêtres fermées
+
+      - Hors heures de travail (endTime <= currentTime < startTime du lendemain) :
           * Lumières éteintes
-          * Alarmes désactivées sauf si présence => alarmes actives
+          * Alarmes désactivées tant qu'aucune présence ET toutes portes/fenêtres fermées
+            => si présence OU porte/fenêtre ouverte : alarmes activées
     """
-    # Récupérer la plage horaire
+
+    # 1) Récupération des infos de plage horaire
     wh = get_working_hour(WORKING_HOUR_ID)
     start_t = parse_time(wh["startTime"])
     end_t   = parse_time(wh["endTime"])
     curr_t  = parse_time(wh["currentTime"])
+
+    # True/False si on est dans la plage de travail [start_t, end_t)
     in_working_hours = is_within_working_hours(curr_t, start_t, end_t)
 
-    # Récupérer l'état de présence par salle
-    sensors_list = get_sensors()
+    # Pour détecter si on est EXACTEMENT à endTime
+    # (selon votre implémentation, vous pouvez comparer les objets time
+    #  ou convertir en string)
+    curr_time_str = time_to_string(curr_t)
+    start_time_str = time_to_string(start_t)
+    end_time_str  = time_to_string(end_t)
+    is_exactly_start_time = (curr_time_str == start_time_str)
+    is_exactly_end_time = (curr_time_str == end_time_str)
+
+    # 2) Récupération de l'état de présence par salle (capteurs)
+    sensors_list = get_sensors()  # ex: [ { "id":..., "roomId":..., "active":...}, ...]
     presence_in_room = {}
-    print(sensors_list)
     for s in sensors_list:
         rid = s["roomId"]
         if rid not in presence_in_room:
             presence_in_room[rid] = False
-        if s["active"] == True:
+        # Dès qu'un capteur est actif pour cette pièce, on met True
+        if s["active"]:
             presence_in_room[rid] = True
 
-    # 1) Gérer portes / fenêtres
-    desired_closed_value = not in_working_hours  # True si hors travail, False si en travail
+    # 3) Récupération des portes/fenêtres
+    doors_list = get_doors()      # ex: [ { "id":..., "roomId":..., "closed":...}, ...]
+    windows_list = get_windows()  # ex: [ { "id":..., "roomId":..., "closed":...}, ...]
 
-    # --- Portes ---
-    doors_list = get_doors()
+    # Pré-calcul : pour savoir si au moins une porte/fenêtre est ouverte
+    # (closed=False => ouverte)
+    any_door_or_window_open = False
+
     for door in doors_list:
-        if door["closed"] != desired_closed_value:
-            print(f"[INFO] Update door {door['id']} => closed={desired_closed_value}")
-            put_door_closed(door["id"], desired_closed_value)
+        if door["closed"] == False:  # porte ouverte
+            any_door_or_window_open = True
+            break
 
-    # --- Fenêtres ---
-    windows_list = get_windows()
-    for w in windows_list:
-        if w["closed"] != desired_closed_value:
-            print(f"[INFO] Update window {w['id']} => closed={desired_closed_value}")
-            put_window_closed(w["id"], desired_closed_value)
+    if not any_door_or_window_open:  # si déjà ouvert par une porte, pas besoin de vérifier les fenêtres
+        for w in windows_list:
+            if w["closed"] == False:  # fenêtre ouverte
+                any_door_or_window_open = True
+                break
 
-    # 2) Gérer lumières
-    #    En heures de travail => ON si presence_in_room=True, sinon OFF
-    #    Hors heures de travail => OFF
+    # 4) Mise à jour des lumières
+    #   - En heures de travail => ON si présence, sinon OFF
+    #   - Hors heures => OFF
     lights_list = get_lights()
     for light in lights_list:
         rid = light["roomId"]
@@ -270,25 +287,78 @@ def apply_scenario_logic():
             desired_light_value = presence_in_room.get(rid, False)
         else:
             desired_light_value = False
+
         if light["active"] != desired_light_value:
             print(f"[INFO] Update light {light['id']} => active={desired_light_value}")
             put_light_active(light["id"], desired_light_value)
 
-    # 3) Gérer alarmes
-    #    En heures de travail => off
-    #    Hors heures de travail => on seulement s'il y a présence
+    # 5) Mise à jour des alarmes
+    #   - En heures de travail => alarmes désactivées
+    #   - Hors heures => alarmes activées si (présence OU porte/fenêtre ouverte),
+    #                    sinon désactivées
     alarms_list = get_alarms()
     for alarm in alarms_list:
         rid = alarm["roomId"]
+
         if in_working_hours:
             desired_alarm_value = False
         else:
-            # hors travail => active si présence
-            desired_alarm_value = presence_in_room.get(rid, False)
+            room_presence = presence_in_room.get(rid, False)
+            # On active si la salle est occupée OU s'il y a au moins
+            # une porte/fenêtre ouverte quelque part.
+            if room_presence or any_door_or_window_open:
+                desired_alarm_value = True
+            else:
+                desired_alarm_value = False
 
         if alarm["active"] != desired_alarm_value:
             print(f"[INFO] Update alarm {alarm['id']} => active={desired_alarm_value}")
             put_alarm_active(alarm["id"], desired_alarm_value)
+
+    # 6) Mise à jour des portes/fenêtres
+    #
+    #   a) Pendant les heures de travail, on peut décider de les ouvrir si on le souhaite.
+    #      Ici, on suppose qu'on les laisse OUVERTES (closed=False) toute la plage.
+    #   b) A la fin de la plage (quand currentTime == endTime), on les ferme (closed=True).
+    #   c) Hors heures de travail, on les veut fermées (closed=True).
+    #
+    #   - À vous d’adapter si vous préférez un autre comportement pendant la plage.
+    #
+    if in_working_hours:
+        # Ouvrir portes/fenêtres
+        if is_exactly_start_time:
+            for door in doors_list:
+                if door["closed"] == True:  # porte est fermée, on l'ouvre
+                    put_door_closed(door["id"], False)
+
+            for w in windows_list:
+                if w["closed"] == True:  # fenêtre est fermée, on l'ouvre
+                    put_window_closed(w["id"], False)
+
+        # Au moment précis de endTime, on ferme tout
+        if is_exactly_end_time:
+            for door in doors_list:
+                if door["closed"] == False:
+                    print(f"[INFO] Fermeture porte {door['id']} à endTime")
+                    put_door_closed(door["id"], True)
+
+            for w in windows_list:
+                if w["closed"] == False:
+                    print(f"[INFO] Fermeture fenêtre {w['id']} à endTime")
+                    put_window_closed(w["id"], True)
+
+    # else:
+    #     # Hors heures de travail => tout doit être fermé
+    #     for door in doors_list:
+    #         if door["closed"] == False:
+    #             print(f"[INFO] Fermeture porte {door['id']} (hors heures)")
+    #             put_door_closed(door["id"], True)
+
+    #     for w in windows_list:
+    #         if w["closed"] == False:
+    #             print(f"[INFO] Fermeture fenêtre {w['id']} (hors heures)")
+    #             put_window_closed(w["id"], True)
+
 
 def increment_current_time():
     """
