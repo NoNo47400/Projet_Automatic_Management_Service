@@ -41,7 +41,9 @@ pip install mariadb flask flask-cors requests
 # Lancer le service
 python scripts/reset_db.py
 ```
-Le service tourne sur le port 5000
+Le service tourne sur le port 5000.
+
+Une fois le Service Python fonctionnel, vous pouvez passez à l'étape 2 (Services Spring Boot), ou si vous êtes sous Windows, vous pouvez tout simplement fermer le Service Python, et d'executer le fichier **run.bat**, qui se chargera de lancer correctement tous les services.
 
 ### 2. Services Spring Boot
 Chaque service doit être démarré séparément dans un terminal différent :
