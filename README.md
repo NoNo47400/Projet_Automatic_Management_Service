@@ -111,8 +111,7 @@ Ou ouvrez-le avec votre navigateur préféré.
 6. Utilisez les boutons qui apparaissent au survol pour changer l'état des éléments
 
 ## Base de données
-La base de données est hébergée sur `srv-bdens.insa-toulouse.fr`.
-Les identifiants sont déjà configurés dans les fichiers de configuration.
+Voir fichier README dans database.
 
 ## Arrêt des services
 - Pour les services Spring Boot : Ctrl+C dans chaque terminal
